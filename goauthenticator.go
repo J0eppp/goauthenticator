@@ -1,10 +1,10 @@
 package goauthenticator
 
 import (
-	"math/rand"
-	"time"
 	"crypto/sha512"
 	"golang.org/x/crypto/pbkdf2"
+	"math/rand"
+	"time"
 )
 
 /*type Authenticator struct {
@@ -48,6 +48,15 @@ func CreateRandomByteArray(alphabet []byte, size int) []byte {
 	rand.Seed(time.Now().UnixNano())
 
 	for i := range b {
-		b[i] = byte(alphabet[rand.Intn(len(alphabet)))
+		b[i] = alphabet[rand.Intn(len(alphabet))]
 	}
+
+	return b
+}
+
+func Hash(password string, saltSize int, iterations int, keyLength int) ([]byte, []byte) {
+	salt := CreateRandomByteArray([]byte("abcdefghijklmnopqrstABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890!@#$%^&*(){}[]-=_+"), saltSize)
+	hash := pbkdf2.Key([]byte(password), salt, iterations, keyLength, sha512.New)
+
+	return hash, salt
 }

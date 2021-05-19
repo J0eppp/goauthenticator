@@ -1,14 +1,20 @@
 package goauthenticator
 
 import (
-	"fmt"
 	"testing"
+	"time"
 )
 
 func Test_test(t *testing.T) {
+	authenticator := Authenticator{}
 	password := "test123"
 
-	hash, _ := Hash(password, 32, 10000, 64)
+	start := time.Now()
 
-	fmt.Println(string(hash))
+	hash, _ := authenticator.Hash(password, 32, 10000, 64)
+
+	elapsed := time.Since(start)
+	t.Logf("Hash took %s", elapsed)
+
+	t.Log(string(hash))
 }

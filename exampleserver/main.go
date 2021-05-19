@@ -63,5 +63,6 @@ func main() {
 		fmt.Fprintf(w, "Added cookie")
 	}).Methods("GET")
 
+	log.Println("Webserver is running")
 	log.Fatal(http.ListenAndServe(":8000", router))
 }

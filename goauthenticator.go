@@ -9,12 +9,10 @@ import (
 
 type Config struct {
 	RedirectURI string
-
 }
 
 type Authenticator struct {
 	SessionHandler SessionHandler
-	//Config Config
 }
 
 

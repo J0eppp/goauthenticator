@@ -3,10 +3,14 @@ package goauthenticator
 import (
 	"fmt"
 	"github.com/google/uuid"
-	"log"
 	"net/http"
 	"time"
 )
+
+type Session struct {
+	SessionToken string `json:"sessionToken"`
+	Expires 	int64 	`json:"expires"`
+}
 
 type SessionHandler struct {
 	GetSessionFromDatabase func(sessionToken string) Session
@@ -15,7 +19,6 @@ type SessionHandler struct {
 }
 
 func (sh *SessionHandler) CreateSessionToken() string {
-	//return uuid.New().String()
 	return uuid.NewString()
 }
 
@@ -36,16 +39,15 @@ func (sh *SessionHandler) unauthorized(w http.ResponseWriter) {
 }
 
 func (sh *SessionHandler) ValidateSession(next http.Handler) http.Handler {
-
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		c, err := r.Cookie("sessionToken")
 		if err != nil {
 			sh.unauthorized(w)
 			return
 		}
-		log.Println(c.Value)
+
 		s := sh.GetSessionFromDatabase(c.Value)
-		log.Printf("%+v\n", s)
+
 		if len(s.SessionToken) == 0 {
 			sh.unauthorized(w)
 			return

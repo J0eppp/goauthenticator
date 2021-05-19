@@ -40,8 +40,6 @@ func (sh *SessionHandler) ValidateSession(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		c, err := r.Cookie("sessionToken")
 		if err != nil {
-			//http.Redirect(w, r, sh.Config.RedirectURI, http.StatusUnauthorized)
-			//return
 			sh.unauthorized(w)
 			return
 		}
@@ -49,8 +47,6 @@ func (sh *SessionHandler) ValidateSession(next http.Handler) http.Handler {
 		s := sh.GetSessionFromDatabase(c.Value)
 		log.Printf("%+v\n", s)
 		if len(s.SessionToken) == 0 {
-			//http.Redirect(w, r, sh.Config.RedirectURI, http.StatusUnauthorized)
-			//return
 			sh.unauthorized(w)
 			return
 		}

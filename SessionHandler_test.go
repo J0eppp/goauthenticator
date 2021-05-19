@@ -84,6 +84,7 @@ func TestSessionHandler(t *testing.T) {
 	resp, err := http.Get("http://localhost:8000")
 	if err != nil {
 		t.Failed()
+		t.Error("Did you run the example server?")
 		t.Error(err)
 	}
 	defer resp.Body.Close()
@@ -117,9 +118,28 @@ func TestSessionHandler(t *testing.T) {
 	client.Jar = jar
 	req, _ := http.NewRequest("GET", "http://localhost:8000/", nil) // request protected route with correct session token
 	resp, err = client.Do(req)
-	t.Log(resp.StatusCode)
 	if resp.StatusCode != 200 {
 		t.Failed()
 		t.Error("Server responded with a non 200 OK response code")
+	}
+
+	client = http.Client{}
+	jar, _ = cookiejar.New(nil)
+	u, _ = url.Parse("http://localhost:8000")
+	var c []*http.Cookie
+	cookie := &http.Cookie{
+		Name: "sessionToken",
+		Value: "invalidToken",
+		Expires: time.Now().Add(time.Hour * 6),
+	}
+	c = append(c, cookie)
+	jar.SetCookies(u, c)
+	client.Jar = jar
+	req, _ = http.NewRequest("GET", "http://localhost:8000/", nil) // request protected route with correct session token
+	resp, err = client.Do(req)
+	if resp.StatusCode != 401 {
+		// Should be unauthorized, because the token "invalidToken" is not valid
+		t.Failed()
+		t.Error("Server responded wit ha non 401 Unauthorized response code but should have responded with 401 Unauthorized")
 	}
 }

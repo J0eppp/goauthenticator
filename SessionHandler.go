@@ -8,12 +8,13 @@ import (
 )
 
 type Session struct {
-	SessionToken string `json:"sessionToken"`
-	Expires 	int64 	`json:"expires"`
+	SessionToken string `json:"sessionToken" bson:"sessionToken" sql:"sessionToken"`
+	Expires 	int64 	`json:"expires" bson:"expires" sql:"expires"`
+	UID	string `json:"uid" bson:"uid"`
 }
 
 type SessionHandler struct {
-	GetSessionFromDatabase func(sessionToken string) Session
+	GetSessionFromDatabase func(sessionToken string) (Session, error)
 	SaveSessionToDatabase func(uid string, session Session) error
 	Config Config
 }
@@ -28,6 +29,7 @@ func (sh *SessionHandler) CreateSession(uid string) (Session, error) {
 	session := Session{
 		SessionToken: token,
 		Expires:      time.Now().Add(time.Hour * 6).Unix(),
+		UID: uid,
 	}
 	return session, sh.SaveSessionToDatabase(uid, session)
 }
@@ -46,7 +48,11 @@ func (sh *SessionHandler) ValidateSession(next http.Handler) http.Handler {
 			return
 		}
 
-		s := sh.GetSessionFromDatabase(c.Value)
+		s, err := sh.GetSessionFromDatabase(c.Value)
+		if err != nil {
+			w.WriteHeader(500)
+			fmt.Fprintf(w, err.Error())
+		}
 
 		if len(s.SessionToken) == 0 {
 			sh.unauthorized(w)

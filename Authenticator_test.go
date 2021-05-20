@@ -24,13 +24,13 @@ func getUserPasswordAndSalt(username string) (string, string, error) {
 	return "", "", nil
 }
 
-func getSessionFromDatabase(sessionToken string) Session {
+func getSessionFromDatabase(sessionToken string) (Session, error) {
 	for _, session := range sessionCollection {
 		if session.SessionToken == sessionToken && session.Expires < time.Now().Unix() {
-			return session
+			return session, nil
 		}
 	}
-	return Session{}
+	return Session{}, nil
 }
 
 func saveSessionToDatabase(uid string, session Session) error {
@@ -39,11 +39,6 @@ func saveSessionToDatabase(uid string, session Session) error {
 }
 
 func TestAuthenticator(t *testing.T) {
-	//authenticator := Authenticator{
-	//	SaltSize: 32,
-	//	Iterations: 10000,
-	//	KeyLength: 64,
-	//}
 	authenticator := NewAuthenticator(getSessionFromDatabase, saveSessionToDatabase, "/login", 32, 10000, 64, getUserPasswordAndSalt)
 	password := "test123"
 	t.Log("Hashing password: " + password)
@@ -61,7 +56,7 @@ func TestAuthenticator(t *testing.T) {
 
 	elapsed := time.Since(start)
 
-	t.Log("Hash: " + string(hash))
+	//t.Log("Hash: " + string(hash))
 	t.Log("Salt: " + string(salt))
 	t.Logf("Hash took %s", elapsed)
 
@@ -76,6 +71,8 @@ func TestAuthenticator(t *testing.T) {
 		t.Failed()
 		t.Error("Password validation failed while it should have succeeded")
 		t.Errorf("User: %+v\n", u)
+	} else {
+		t.Log("Correct password check: true")
 	}
 
 	// Give it an incorrect password
@@ -88,6 +85,8 @@ func TestAuthenticator(t *testing.T) {
 		t.Failed()
 		t.Error("CheckPassword says the password is correct while it is not")
 		t.Errorf("User: %+v\n", u)
+	} else {
+		t.Log("Incorrect password check: true")
 	}
 
 	ok, err = authenticator.CheckPassword(u.Username, "")
@@ -99,6 +98,8 @@ func TestAuthenticator(t *testing.T) {
 		t.Failed()
 		t.Error("CheckPassword says the password is correct while it is not")
 		t.Errorf("User: %+v\n", u)
+	} else {
+		t.Log("Incorrect password check: true")
 	}
 
 	ok, err = authenticator.CheckPassword("", "test123")
@@ -110,6 +111,8 @@ func TestAuthenticator(t *testing.T) {
 		t.Failed()
 		t.Error("CheckPassword says the password is correct while it is not")
 		t.Errorf("User: %+v\n", u)
+	} else {
+		t.Log("Incorrect password check: true")
 	}
 
 	ok, err = authenticator.CheckPassword("", "")
@@ -121,6 +124,8 @@ func TestAuthenticator(t *testing.T) {
 		t.Failed()
 		t.Error("CheckPassword says the password is correct while it is not")
 		t.Errorf("User: %+v\n", u)
+	} else {
+		t.Log("Incorrect password check: true")
 	}
 
 	ok, err = authenticator.CheckPassword("incorrectusername", "test123")
@@ -132,5 +137,7 @@ func TestAuthenticator(t *testing.T) {
 		t.Failed()
 		t.Error("CheckPassword says the password is correct while it is not")
 		t.Errorf("User: %+v\n", u)
+	} else {
+		t.Log("Incorrect password check: true")
 	}
 }

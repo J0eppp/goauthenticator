@@ -19,7 +19,7 @@ type Authenticator struct {
 	GetUserPasswordAndSalt func(username string) (string, string, error)
 }
 
-func NewAuthenticator(getSessionFromDatabase func(sessionToken string) Session, saveSessionToDatabase func(uid string, session Session) error, redirectURI string, saltSize int, iterations int, keyLength int, getUserPasswordAndSalt func(username string) (string, string, error)) Authenticator {
+func NewAuthenticator(getSessionFromDatabase func(sessionToken string) (Session, error), saveSessionToDatabase func(uid string, session Session) error, redirectURI string, saltSize int, iterations int, keyLength int, getUserPasswordAndSalt func(username string) (string, string, error)) Authenticator {
 	return Authenticator{
 		SessionHandler: SessionHandler{
 			GetSessionFromDatabase: getSessionFromDatabase,

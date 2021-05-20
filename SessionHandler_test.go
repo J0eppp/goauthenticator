@@ -52,13 +52,12 @@ func TestSessionHandler(t *testing.T) {
 
 	authenticator = Authenticator{
 		SessionHandler: SessionHandler{
-			GetSessionFromDatabase: func(sessionToken string) Session {
+			GetSessionFromDatabase: func(sessionToken string) (Session, error) {
 				user, ok := database[sessionToken]
 				if !ok {
-					return Session{}
+					return Session{}, nil
 				}
-				return user
-				//return Session{sessionToken} // This function will always "find" the session token
+				return user, nil
 			},
 			SaveSessionToDatabase: func(uid string, session Session) error {
 				database[session.SessionToken] = session
@@ -70,13 +69,13 @@ func TestSessionHandler(t *testing.T) {
 		},
 	}
 
-	t.Logf("%+v\n", authenticator)
+	//t.Logf("%+v\n", authenticator)
 
-	t.Log(authenticator.SessionHandler.CreateSession("test"))
+	//t.Log(authenticator.SessionHandler.CreateSession("test"))
 
-	t.Log(authenticator.SessionHandler.CreateSessionToken())
+	//t.Log(authenticator.SessionHandler.CreateSessionToken())
 
-	t.Logf("%+v\n", database)
+	//t.Logf("%+v\n", database)
 
 	//go startWebServer(t)
 
@@ -93,7 +92,7 @@ func TestSessionHandler(t *testing.T) {
 		// This should be unauthorized because we did not give a valid cookie
 		t.Failed()
 		t.Error("Server did not respond with 401 unauthorized when making an unauthorized requets to a protected route")
-		t.Errorf("%+v\n", resp)
+		//t.Errorf("%+v\n", resp)
 	}
 
 	resp, err = http.Get("http://localhost:8000/get") // get token
@@ -140,6 +139,6 @@ func TestSessionHandler(t *testing.T) {
 	if resp.StatusCode != 401 {
 		// Should be unauthorized, because the token "invalidToken" is not valid
 		t.Failed()
-		t.Error("Server responded wit ha non 401 Unauthorized response code but should have responded with 401 Unauthorized")
+		t.Error("Server responded with a non 401 Unauthorized response code but should have responded with 401 Unauthorized")
 	}
 }

@@ -18,4 +18,5 @@
 
 app.rsa
 app.rsa.pub
-exampleserver/exampleserver
+
+*.bit

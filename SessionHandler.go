@@ -5,6 +5,7 @@ import (
 	"github.com/google/uuid"
 	"net/http"
 	"time"
+	"log"
 )
 
 type Session struct {
@@ -52,12 +53,16 @@ func (sh *SessionHandler) ValidateSession(next http.Handler) http.Handler {
 		if err != nil {
 			w.WriteHeader(500)
 			fmt.Fprintf(w, err.Error())
+			return
 		}
 
 		if len(s.SessionToken) == 0 {
 			sh.unauthorized(w)
 			return
 		}
+
+		log.Printf("%+v\n", s)
+
 		next.ServeHTTP(w, r)
 	})
 }

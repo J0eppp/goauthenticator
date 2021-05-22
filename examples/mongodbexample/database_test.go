@@ -28,6 +28,7 @@ func TestDatabase(t *testing.T) {
 		Salt:         string(salt),
 	}
 
+	t.Log("Saving a new user")
 	err = db.SaveNewUser(user)
 	if err != nil {
 		t.Failed()
@@ -36,6 +37,7 @@ func TestDatabase(t *testing.T) {
 	}
 
 	// Create a session
+	t.Log("Creating a session")
 	session, err := authenticator.SessionHandler.CreateSession(user.Username)
 	if err != nil {
 		t.Failed()
@@ -44,6 +46,7 @@ func TestDatabase(t *testing.T) {
 	}
 
 	// Get the session
+	t.Log("Fetching the session from the database")
 	s, err := authenticator.SessionHandler.GetSessionFromDatabase(session.SessionToken)
 	if err != nil {
 		t.Failed()

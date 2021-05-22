@@ -54,11 +54,13 @@ func (auth *Authenticator) CheckPassword(username string, password string) (bool
 	return true, nil
 }
 
-// Create a random []byte
-func (auth *Authenticator) createRandomByteArray(alphabet []byte, size int) []byte {
-	b := make([]byte, size)
+// createRandomByteArray creates a random byte array of size n using all the characters from alphabet
+func (auth *Authenticator) createRandomByteArray(alphabet []byte, n int) []byte {
+	// Create []byte of size n 
+	b := make([]byte, n)
 
-	rand.Seed(time.Now().UnixNano())
+	// Set the seed for the rand library
+	rand.Seed(time.Now().Unix() * time.Now().UnixNano() * int64(time.Now().Day()))
 
 	for i := range b {
 		b[i] = alphabet[rand.Intn(len(alphabet))]

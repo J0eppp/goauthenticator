@@ -3,6 +3,7 @@ package goauthenticator
 import (
 	"fmt"
 	"github.com/gorilla/mux"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/http/cookiejar"
@@ -95,7 +96,7 @@ func TestSessionHandler(t *testing.T) {
 		//t.Errorf("%+v\n", resp)
 	}
 
-	resp, err = http.Get("http://localhost:8000/get") // get token
+	resp, err = http.Get("http://localhost:8000/get?uid=test") // get token
 	if err != nil {
 		t.Failed()
 		t.Error(err)
@@ -106,6 +107,7 @@ func TestSessionHandler(t *testing.T) {
 		// Server did not add any cookies
 		t.Failed()
 		t.Error("Server did not respond with a cookie")
+		t.Errorf("%+v\n", resp.Cookies())
 	}
 
 	cookies := resp.Cookies()
@@ -134,11 +136,13 @@ func TestSessionHandler(t *testing.T) {
 	c = append(c, cookie)
 	jar.SetCookies(u, c)
 	client.Jar = jar
-	req, _ = http.NewRequest("GET", "http://localhost:8000/", nil) // request protected route with correct session token
+	req, _ = http.NewRequest("GET", "http://localhost:8000/", nil) // request protected route with incorrect session token
 	resp, err = client.Do(req)
 	if resp.StatusCode != 401 {
 		// Should be unauthorized, because the token "invalidToken" is not valid
 		t.Failed()
-		t.Error("Server responded with a non 401 Unauthorized response code but should have responded with 401 Unauthorized")
+		t.Errorf("Server responded with a %d response code but should have responded with 401 Unauthorized", resp.StatusCode)
+		body, _ := ioutil.ReadAll(resp.Body)
+		t.Errorf("Response: %s", string(body))
 	}
 }

@@ -8,6 +8,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"log"
 	"net/http"
+	"fmt"
+	"time"
 
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -102,12 +104,55 @@ func main() {
 
 	router := mux.NewRouter().StrictSlash(false)
 
+	router.HandleFunc("/get", getHandler)
+
 	protectedRouter := router.Path("/").Subrouter()
 
 	protectedRouter.Use(authenticator.SessionHandler.ValidateSession)
-
+	
+	protectedRouter.HandleFunc("/", indexHandler)
 
 
 	log.Println("Webserver is running")
 	log.Fatal(http.ListenAndServe(":8000", router))
+}
+
+// Protected route
+func indexHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Hi, I'm a protected route!")
+}
+
+// Session getter
+func getHandler(w http.ResponseWriter, r *http.Request) {
+	uid, ok := r.URL.Query()["uid"]
+	if !ok {
+		w.WriteHeader(400)
+		fmt.Fprintf(w, "Bad Request, no uid GET parameter was found")
+		return
+	}
+
+	session, err := authenticator.SessionHandler.CreateSession(uid[0])
+	if err != nil {
+		if !ok {
+			w.WriteHeader(500)
+			fmt.Fprintf(w, err.Error())
+			return
+		}
+	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:       "sessionToken",
+		Value:      session.SessionToken,
+		Path:       "",
+		Domain:     "",
+		Expires:    time.Unix(session.Expires, 0),
+		RawExpires: "",
+		MaxAge:     0,
+		Secure:     false,
+		HttpOnly:   false,
+		SameSite:   0,
+		Raw:        "",
+		Unparsed:   nil,
+	})
+	fmt.Fprintf(w, "Added cookie")
 }

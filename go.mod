@@ -1,4 +1,4 @@
-module goauthenticator
+module github.com/J0eppp/goauthenticator
 
 go 1.15
 

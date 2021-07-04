@@ -2,10 +2,10 @@ package main
 
 import (
 	"context"
+	"github.com/J0eppp/goauthenticator"
 	"github.com/gorilla/mux"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"goauthenticator"
 	"log"
 	"net/http"
 

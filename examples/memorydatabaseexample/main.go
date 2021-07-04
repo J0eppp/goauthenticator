@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
+	"github.com/J0eppp/goauthenticator"
 	"github.com/gorilla/mux"
-	"goauthenticator"
 	"log"
 	"net/http"
 	"time"

@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"goauthenticator"
+	"github.com/J0eppp/goauthenticator"
 	"testing"
 )
 

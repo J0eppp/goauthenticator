@@ -5,7 +5,6 @@ import (
 	"github.com/google/uuid"
 	"net/http"
 	"time"
-	"log"
 )
 
 type Session struct {
@@ -38,7 +37,7 @@ func (sh *SessionHandler) CreateSession(uid string) (Session, error) {
 func (sh *SessionHandler) unauthorized(w http.ResponseWriter) {
 	w.Header().Add("Location", sh.Config.RedirectURI)
 	w.WriteHeader(401) // Unauthorized
-	fmt.Fprintf(w, "Unauthorized")
+	fmt.Fprintf(w, "{ \"error\": true, \"message\": \"You are not authorized to perform this action\" }")
 }
 
 func (sh *SessionHandler) ValidateSession(next http.Handler) http.Handler {
@@ -60,8 +59,6 @@ func (sh *SessionHandler) ValidateSession(next http.Handler) http.Handler {
 			sh.unauthorized(w)
 			return
 		}
-
-		log.Printf("%+v\n", s)
 
 		next.ServeHTTP(w, r)
 	})
